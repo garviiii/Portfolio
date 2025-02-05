@@ -292,9 +292,15 @@ footer {
       .skills-section {
         padding: 0 20px;
       }
+
+        .skills-section .text {
+        text-align: justify;
+        text-justify: inter-word;
+      }
     
       .skills-section .cells .cell span {
         font-size: 16px;
+        text-align: justify;
       }
 }
 
