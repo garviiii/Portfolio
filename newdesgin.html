@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Garv Sachdeva [Portfolio OS]</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link type="image/x-icon" sizes="120x120" rel="icon" href="https://img.icons8.com/plasticine/400/minecraft-grass-cube--v1.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        
+        :root {
+            --primary: #00ff9b;
+            --background: #1a1c20;
+            --window-bg: #2a2d34;
+            --border-color: #444;
+            --text-color: #e0e0e0;
+            --header-bg: #3c3f46;
+            --menu-bar-bg: rgba(42, 45, 52, 0.7);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'VT323', monospace;
+            background-color: var(--background);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            background: 
+                linear-gradient(rgba(26, 28, 32, 0.95), rgba(26, 28, 32, 0.95)),
+                repeating-linear-gradient(0deg, var(--border-color), var(--border-color) 1px, transparent 1px, transparent 60px),
+                repeating-linear-gradient(90deg, var(--border-color), var(--border-color) 1px, transparent 1px, transparent 60px);
+            background-size: 100% 100%, 60px 60px, 60px 60px;
+            animation: bg-animation 10s linear infinite;
+        }
+
+        @keyframes bg-animation {
+            0% {
+                background-position: 0 0, 0 0, 0 0;
+            }
+            100% {
+                background-position: 0 0, -60px -60px, -60px -60px;
+            }
+        }
+        
+        /* --- Boot Screen --- */
+        #boot-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary);
+            transition: opacity 0.5s ease-out;
+        }
+        #boot-logo { font-size: 80px; margin-bottom: 20px; }
+        #progress-bar-container { width: 300px; height: 10px; border: 1px solid var(--primary); }
+        #progress-bar { width: 0%; height: 100%; background: var(--primary); transition: width 1.5s ease-in-out; }
+
+        /* --- UI Elements --- */
+        .crt-scanline {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 3px, 6px 100%;
+            animation: flicker 0.15s infinite;
+            z-index: 1000;
+        }
+        @keyframes flicker { 0% { opacity: 0.2; } 50% { opacity: 0.5; } 100% { opacity: 0.2; } }
+
+        .menu-bar {
+            position: fixed; top: 0; left: 0; width: 100%; height: 30px;
+            background: var(--menu-bar-bg);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 15px; font-size: 18px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .menu-left, .menu-right { display: flex; align-items: center; gap: 20px; }
+        .hire-me-menu { position: relative; }
+        .hire-me-btn { cursor: pointer; font-weight: bold; }
+        .hire-me-dropdown {
+            display: none; position: absolute; top: 25px; left: 0;
+            background: var(--menu-bar-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color); border-radius: 5px;
+            padding: 5px; list-style: none; width: 200px;
+        }
+        .hire-me-dropdown a { color: var(--text-color); text-decoration: none; display: block; padding: 5px 10px; }
+        .hire-me-dropdown a:hover { background: var(--primary); color: var(--background); }
+
+        .control-center-item { cursor: pointer; color: var(--text-color); transition: color 0.2s; }
+        .control-center-item:hover { color: var(--primary); }
+        .menu-icon { font-size: 20px; }
+
+        .desktop { width: 100%; height: 100%; padding-top: 30px; padding-bottom: 70px; }
+
+        /* --- Onboarding guide popup --- */
+        #guide-popup {
+            position: fixed;
+            background: var(--primary);
+            color: var(--background);
+            padding: 10px 15px;
+            border-radius: 8px;
+            z-index: 101;
+            opacity: 0;
+            font-size: 18px;
+            transform: scale(0.5);
+            cursor: pointer;
+        }
+        #guide-popup.active {
+            animation: popInAndOut 5s forwards;
+        }
+        #guide-popup::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid var(--primary);
+        }
+        @keyframes popInAndOut {
+            0% { opacity: 0; transform: scale(0.5); }
+            10% { opacity: 1; transform: scale(1); }
+            90% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); pointer-events: none; }
+        }
+
+
+        .window {
+            position: absolute; background-color: var(--window-bg);
+            border: 2px solid var(--border-color); border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none;
+            flex-direction: column; resize: both; overflow: auto;
+            min-width: 300px; min-height: 200px;
+        }
+
+        .window-header {
+            background-color: var(--header-bg); padding: 8px 12px;
+            cursor: move; display: flex; align-items: center;
+            border-bottom: 2px solid var(--border-color); border-radius: 6px 6px 0 0;
+        }
+        .window-header .buttons { display: flex; gap: 8px; margin-right: 15px; }
+        .window-header .button {
+            width: 15px; height: 15px; border-radius: 50%;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+        }
+        .window-header .button span { color: #000; font-size: 10px; opacity: 0; transition: opacity 0.2s; font-weight: bold;}
+        .window-header .button:hover span { opacity: 1; }
+        .close { background-color: #ff5f56; }
+        .minimize { background-color: #ffbd2e; }
+        .maximize { background-color: #27c93f; }
+        .window-header .title { color: var(--primary); font-size: 20px; }
+
+        .window-content { padding: 20px; flex-grow: 1; overflow-y: auto; }
+        #intro-window .window-content { background: #111; padding: 15px; }
+        .prompt { color: var(--primary); }
+        .cursor { display: inline-block; background-color: var(--primary); width: 10px; height: 20px; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .skill-list { display: flex; flex-wrap: wrap; gap: 15px; }
+        .skill-tag {
+            background-color: var(--background); color: var(--primary);
+            padding: 8px 16px; border-radius: 5px; font-size: 18px;
+            border: 1px solid var(--primary); opacity: 0; transform: translateY(20px);
+            animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+        .file-explorer { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 20px; }
+        .file { text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .file:hover { transform: scale(1.1); }
+        .file i { font-size: 50px; color: var(--primary); }
+        .file p { margin-top: 10px; font-size: 16px; }
+
+        .dock {
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            background: var(--menu-bar-bg); backdrop-filter: blur(10px);
+            border-radius: 12px; padding: 10px; display: flex; gap: 15px; z-index: 100;
+            border: 1px solid var(--border-color);
+        }
+        .dock-item { position: relative; font-size: 40px; color: var(--text-color); cursor: pointer; transition: transform 0.2s, color 0.2s; }
+        .dock-item .dock-label {
+            position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+            background-color: var(--header-bg); color: var(--primary);
+            padding: 5px 12px; border-radius: 5px; font-size: 16px; white-space: nowrap;
+            opacity: 0; visibility: hidden; transition: opacity 0.2s, bottom 0.2s; pointer-events: none;
+        }
+        .dock-item:hover { transform: scale(1.2) translateY(-5px); color: var(--primary); }
+        .dock-item:hover .dock-label { opacity: 1; visibility: visible; bottom: 75px; }
+        
+        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
+        .modal-content { background-color: var(--window-bg); margin: 15% auto; padding: 0; border: 2px solid var(--primary); border-radius: 8px; width: 80%; max-width: 600px; animation: slideIn 0.5s; }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { background-color: var(--header-bg); padding: 15px; color: var(--primary); font-size: 24px; border-bottom: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; font-size: 18px; line-height: 1.6; }
+        .modal-body img { max-width: 100%; border-radius: 5px; margin-bottom: 15px; }
+        .modal-footer { padding: 15px; text-align: right; }
+        .modal-footer a { background-color: var(--primary); color: var(--background); padding: 10px 20px; border-radius: 5px; text-decoration: none; font-size: 18px; }
+        .modal-close { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+
+        @media (max-width: 768px) {
+            body { overflow: auto; height: auto; }
+            .desktop { padding-top: 20px; padding-bottom: 20px; height: auto; }
+            .menu-bar, #guide-popup { display: none; } /* Hide complex menu bar and guide on mobile */
+            .window { position: relative !important; width: 95% !important; height: auto !important; left: 2.5% !important; top: 0 !important; margin: 0 auto 20px auto; display: flex !important; resize: none; }
+            .window-header { cursor: default; }
+            .window-header .buttons { display: none; }
+            .dock { top: 0; bottom: auto; width: 100%; border-radius: 0; justify-content: space-around; padding: 8px 5px; border: none; border-bottom: 1px solid var(--border-color); }
+            .dock-item { font-size: 28px; }
+            .dock-item:hover { transform: none; color: var(--primary); }
+            .dock-item .dock-label { display: none; }
+            .modal-content { width: 95%; margin: 25% auto; }
+        }
+    </style>
+</head>
+<body>
+    <div id="boot-screen">
+        <div id="boot-logo"><i class="fas fa-code"></i></div>
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+    
+    <div class="menu-bar">
+        <div class="menu-left">
+             <div class="hire-me-menu">
+                <span class="hire-me-btn">Hire Me</span>
+                <ul class="hire-me-dropdown">
+                    <li><a href="mailto:garvsachdeva69@gmail.com"><i class="fas fa-envelope"></i> Send a Mail</a></li>
+                    <li><a href="https://www.linkedin.com/in/garv-sachdeva/" target="_blank"><i class="fab fa-linkedin"></i> Text me on linkedin</a></li>
+                    <li><a href="https://www.instagram.com/_garvsachdeva_/" target="_blank"><i class="fab fa-instagram"></i> Text me on Instagram</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="menu-right">
+            <a href="https://github.com/garviiii" target="_blank" class="control-center-item" title="GitHub"><i class="fab fa-github menu-icon"></i></a>
+            <a href="https://www.linkedin.com/in/garv-sachdeva/" target="_blank" class="control-center-item" title="LinkedIn"><i class="fab fa-linkedin menu-icon"></i></a>
+            <div id="clock"></div>
+        </div>
+    </div>
+
+    <div class="crt-scanline"></div>
+    <div class="desktop">
+        <div id="guide-popup"><span>Start Here!</span></div>
+
+        <div id="intro-window" class="window" style="width: 500px; height: 320px; top: 10%; left: 15%;">
+            <div class="window-header">
+                <div class="buttons">
+                    <span class="button close"><span>&times;</span></span>
+                    <span class="button minimize"><span>&minus;</span></span>
+                    <span class="button maximize"><span>+</span></span>
+                </div>
+                <span class="title">README.md</span>
+            </div>
+            <div class="window-content"><div id="terminal"></div></div>
+        </div>
+        
+        <div id="skills-window" class="window" style="width: 600px; height: 400px; top: 20%; left: 40%;">
+            <div class="window-header">
+                 <div class="buttons">
+                    <span class="button close"><span>&times;</span></span>
+                    <span class="button minimize"><span>&minus;</span></span>
+                    <span class="button maximize"><span>+</span></span>
+                </div>
+                <span class="title">system_profiler</span>
+            </div>
+            <div class="window-content">
+                <div class="skill-list"></div>
+            </div>
+        </div>
+
+        <div id="projects-window" class="window" style="width: 550px; height: 450px; top: 30%; left: 25%;">
+             <div class="window-header">
+                 <div class="buttons">
+                    <span class="button close"><span>&times;</span></span>
+                    <span class="button minimize"><span>&minus;</span></span>
+                    <span class="button maximize"><span>+</span></span>
+                </div>
+                <span class="title">~/Projects</span>
+            </div>
+            <div class="window-content"><div class="file-explorer"></div></div>
+        </div>
+    </div>
+
+    <div class="dock">
+        <div class="dock-item" data-window="intro-window"> <i class="fas fa-terminal"></i> <span class="dock-label">About Me</span> </div>
+        <div class="dock-item" data-window="skills-window"> <i class="fas fa-microchip"></i> <span class="dock-label">Toolkit</span> </div>
+        <div class="dock-item" data-window="projects-window"> <i class="fas fa-folder-open"></i> <span class="dock-label">Projects</span> </div>
+    </div>
+
+    <div id="project-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header"><h2 id="modal-title"></h2><span class="modal-close">&times;</span></div>
+        <div class="modal-body"><img id="modal-image" src="" alt="Project Image"><p id="modal-description"></p></div>
+        <div class="modal-footer"><a id="modal-link" href="#" target="_blank">View Project</a></div>
+      </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const introText = "Hi, I am Garv 👋\n\nI am a coder with a knack for building efficient solutions. I use tech to build tech. I love solving problems, exploring new technologies and optimizing workflows. Beyond code, I explore video editing and storytelling—always creating, always evolving.\n\nUse the dock below to explore my toolkit and projects.";
+            const skills = ['Python', 'C++', 'JavaScript', 'SQL', 'Neural Networks', 'Deep Learning', 'Keras', 'scikit-learn', 'Pandas', 'LangChain', 'OpenCV', 'HTML', 'CSS', 'React', 'Tailwind CSS', 'Git'];
+            const projects = [
+                { id: 'proj1', name: 'Black Hole Research', icon: 'fa-star', image: 'https://placehold.co/600x400/000000/00ff9b?text=Accretion+Disk+Analysis', description: 'Analyzed X-ray observational data from XMM-Newton using HEASoft to study variations in the accretion disk size of a black hole. Applied spectral fitting techniques to extract physical parameters.', link: 'https://drive.google.com/file/d/1SYSACs-3r_ZrkmxLPo5FehtQJPoDG847p/view?usp=sharing' },
+                { id: 'proj2', name: 'Log Classifier', icon: 'fa-file-alt', image: 'https://placehold.co/600x400/111111/00ff9b?text=Hybrid+Log+System', description: 'Developed a hybrid log classification system combining regex, BERT embeddings, and large language models to accurately categorize diverse system logs, enabling efficient troubleshooting, enhanced monitoring, and improved system reliability.', link: 'https://github.com/garviiii/Log-Classification' }
+            ];
+
+            const isMobile = window.innerWidth <= 768;
+
+            // --- Boot Sequence ---
+            const bootScreen = document.getElementById('boot-screen');
+            const progressBar = document.getElementById('progress-bar');
+            setTimeout(() => {
+                progressBar.style.width = '100%';
+            }, 100);
+
+            setTimeout(() => {
+                bootScreen.style.opacity = '0';
+                if (!isMobile) {
+                    const guidePopup = document.getElementById('guide-popup');
+                    const aboutIcon = document.querySelector('.dock-item[data-window="intro-window"]');
+                    const iconRect = aboutIcon.getBoundingClientRect();
+                    
+                    guidePopup.style.left = `${iconRect.left + (iconRect.width / 2) - (guidePopup.offsetWidth / 2)}px`;
+                    guidePopup.style.top = `${iconRect.top - guidePopup.offsetHeight - 15}px`;
+                    
+                    guidePopup.classList.add('active');
+                }
+                setTimeout(() => { bootScreen.style.display = 'none'; }, 500);
+            }, 2000);
+
+            // --- Menu Bar ---
+            const hireMeBtn = document.querySelector('.hire-me-btn');
+            const hireMeDropdown = document.querySelector('.hire-me-dropdown');
+            hireMeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                hireMeDropdown.style.display = hireMeDropdown.style.display === 'block' ? 'none' : 'block';
+            });
+            document.addEventListener('click', () => { hireMeDropdown.style.display = 'none'; });
+
+            const clock = document.getElementById('clock');
+            function updateClock() {
+                const now = new Date();
+                const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const date = now.toDateString().slice(0, 10);
+                clock.textContent = `${date} ${time}`;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+            
+            // --- Window Management ---
+            const windows = document.querySelectorAll('.window');
+            windows.forEach(win => {
+                const closeBtn = win.querySelector('.close');
+                const minBtn = win.querySelector('.minimize');
+                const maxBtn = win.querySelector('.maximize');
+
+                closeBtn.addEventListener('click', () => { win.style.display = 'none'; });
+                minBtn.addEventListener('click', () => { win.style.display = 'none'; });
+
+                maxBtn.addEventListener('click', () => {
+                    if (win.dataset.isMaximized === 'true') {
+                        win.style.width = win.dataset.oldWidth;
+                        win.style.height = win.dataset.oldHeight;
+                        win.style.top = win.dataset.oldTop;
+                        win.style.left = win.dataset.oldLeft;
+                        win.dataset.isMaximized = 'false';
+                    } else {
+                        win.dataset.oldWidth = win.style.width;
+                        win.dataset.oldHeight = win.style.height;
+                        win.dataset.oldTop = win.style.top;
+                        win.dataset.oldLeft = win.style.left;
+                        win.style.width = '100vw';
+                        win.style.height = 'calc(100vh - 100px)';
+                        win.style.top = '30px';
+                        win.style.left = '0';
+                        win.dataset.isMaximized = 'true';
+                    }
+                });
+                
+                win.addEventListener('mousedown', () => {
+                    windows.forEach(w => w.style.zIndex = '10');
+                    win.style.zIndex = '20';
+                });
+                if (!isMobile) makeDraggable(win);
+            });
+            
+            const dockItems = document.querySelectorAll('.dock-item[data-window]');
+            dockItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const windowId = item.dataset.window;
+                    const win = document.getElementById(windowId);
+                    if (win) {
+                        if(isMobile) {
+                            win.scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                            const wasHidden = win.style.display !== 'flex'; // Check before showing
+                            win.style.display = 'flex';
+                            windows.forEach(w => w.style.zIndex = '10');
+                            win.style.zIndex = '20';
+
+                            // If it's the intro window AND it was just opened, start typing.
+                            if (windowId === 'intro-window' && wasHidden) {
+                                const terminal = document.getElementById('terminal');
+                                terminal.innerHTML = '<span class="prompt">~ guest > </span>';
+                                typeWriter(introText);
+                            }
+                        }
+                    }
+                });
+            });
+
+            // --- Guide Popup ---
+            const guidePopup = document.getElementById('guide-popup');
+            guidePopup.addEventListener('click', () => {
+                const introWindow = document.getElementById('intro-window');
+                introWindow.style.display = 'flex';
+                windows.forEach(w => w.style.zIndex = '10');
+                introWindow.style.zIndex = '20';
+                guidePopup.classList.remove('active');
+                guidePopup.style.display = 'none';
+
+                // Also start typing here
+                const terminal = document.getElementById('terminal');
+                terminal.innerHTML = '<span class="prompt">~ guest > </span>';
+                typeWriter(introText);
+            });
+
+
+            function makeDraggable(element) {
+                let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+                const header = element.querySelector('.window-header');
+                header.onmousedown = dragMouseDown;
+                function dragMouseDown(e) { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDragElement; document.onmousemove = elementDrag; }
+                function elementDrag(e) { e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = e.clientY; pos3 = e.clientX; pos4 = e.clientY; element.style.top = (element.offsetTop - pos2) + "px"; element.style.left = (element.offsetLeft - pos1) + "px"; }
+                function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
+            }
+
+            // --- Content Population ---
+            const terminal = document.getElementById('terminal');
+            function typeWriter(text, i = 0) {
+                if (i < text.length) {
+                    terminal.innerHTML = terminal.innerHTML.replace('<span class="cursor"></span>', '') + (text.charAt(i) === '\n' ? '<br>' : text.charAt(i));
+                    terminal.innerHTML += '<span class="cursor"></span>';
+                    setTimeout(() => typeWriter(text, i + 1), 20);
+                } else {
+                    terminal.querySelector('.cursor').style.animation = 'blink 1s step-end infinite';
+                }
+            }
+            
+            document.querySelector('#skills-window .skill-list').innerHTML = skills.map((skill, index) => `<div class="skill-tag" style="animation-delay: ${index * 0.05}s">${skill}</div>`).join('');
+            document.querySelector('#projects-window .file-explorer').innerHTML = projects.map(p => `<div class="file" data-project='${JSON.stringify(p)}'><i class="fas ${p.icon}"></i><p>${p.name}</p></div>`).join('');
+
+            // --- Modal Logic ---
+            const modal = document.getElementById("project-modal");
+            const modalClose = document.querySelector(".modal-close");
+            document.querySelector('.file-explorer').addEventListener('click', (e) => {
+                const projectFile = e.target.closest('.file');
+                if(projectFile) {
+                    const project = JSON.parse(projectFile.dataset.project);
+                    document.getElementById('modal-title').textContent = project.name;
+                    document.getElementById('modal-image').src = project.image;
+                    document.getElementById('modal-description').textContent = project.description;
+                    document.getElementById('modal-link').href = project.link;
+                    modal.style.display = "block";
+                }
+            });
+            modalClose.onclick = () => { modal.style.display = "none"; }
+            window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; }
+            
+            // --- Startup ---
+            terminal.innerHTML = '<span class="prompt">~ guest > </span>';
+        });
+    </script>
+</body>
+</html>
+
