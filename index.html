@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link type="image/x-icon" sizes="120x120" rel="icon" href="https://img.icons8.com/plasticine/400/minecraft-grass-cube--v1.png">   
+    <link type="image/jpeg" rel="icon" href="images/garv_icon.png">   
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
@@ -279,7 +279,7 @@
       .hero-section .headshot {
           flex: 2;
           display: flex;
-          justify-content: right;
+          justify-content: left;
       }
 
       .hero-section .headshot img {
@@ -437,6 +437,7 @@
           overflow: hidden;
           display: flex;
           flex-direction: column;
+          height: 100%; /* This will make all cards in a row the same height */
       }
 
       .project:hover {
@@ -529,7 +530,7 @@
 
       @media (max-width: 740px) {
           .hero-section {
-              flex-direction: column-reverse;
+              flex-direction: column;
               text-align: center;
             }
           
@@ -644,6 +645,10 @@
     <main>
       <!-- HERO-SECTION -->
       <section class="hero-section">
+        <div class="headshot">
+            <img src="images/garv.jpg" alt="Portrait of Garv Sachdeva" />
+          </div>
+
         <div class="text">
           <h2>Hi, I am Garv 👋</h2>
           <p>
@@ -672,9 +677,7 @@
         
         </div>
 
-          <div class="headshot">
-            <img src="images/garv.jpg" alt="Portrait of Garv Sachdeva" />
-          </div>
+          
       </section>
 
       <!-- Skills Section -->
@@ -757,6 +760,15 @@
                     </div>
                 </div>
             </a>
+            
+            <a href="https://github.com/garviiii/Dashboard" target="_blank">
+                <div class="project">
+                    <img src="images/dashboard_image.png" alt="HR Management Dashboard Project">
+                    <div class="project-text">
+                      Designed a responsive and intuitive HR Management Dashboard frontend using React, Vite, and Tailwind CSS. The interface simplifies core HR tasks like employee, recruitment, and payroll management.
+                    </div>
+                </div>
+            </a>
         </div>
       </section>
     </main>
@@ -814,11 +826,5 @@
     </script>
   </body>
 </html>
-
-
-
-
-
-
 
 
