@@ -307,6 +307,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            let typewriterTimeout;
             const introText = "Hi, I am Garv 👋\n\nI am a coder with a knack for building efficient solutions. I use tech to build tech. I love solving problems, exploring new technologies and optimizing workflows. Beyond code, I explore video editing and storytelling—always creating, always evolving.\n\nUse the dock below to explore my toolkit and projects.";
             const skills = ['Python', 'C++', 'JavaScript', 'SQL', 'Neural Networks', 'Deep Learning', 'Keras', 'scikit-learn', 'Pandas', 'LangChain', 'OpenCV', 'HTML', 'CSS', 'React', 'Tailwind CSS', 'Git'];
             const projects = [
@@ -364,7 +365,12 @@
                 const minBtn = win.querySelector('.minimize');
                 const maxBtn = win.querySelector('.maximize');
 
-                closeBtn.addEventListener('click', () => { win.style.display = 'none'; });
+                closeBtn.addEventListener('click', () => { 
+                    win.style.display = 'none';
+                    if (win.id === 'intro-window') {
+                        clearTimeout(typewriterTimeout);
+                    }
+                });
                 minBtn.addEventListener('click', () => { win.style.display = 'none'; });
 
                 maxBtn.addEventListener('click', () => {
@@ -441,7 +447,15 @@
                 const header = element.querySelector('.window-header');
                 header.onmousedown = dragMouseDown;
                 function dragMouseDown(e) { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDragElement; document.onmousemove = elementDrag; }
-                function elementDrag(e) { e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = e.clientY; pos3 = e.clientX; pos4 = e.clientY; element.style.top = (element.offsetTop - pos2) + "px"; element.style.left = (element.offsetLeft - pos1) + "px"; }
+                function elementDrag(e) { 
+                    e.preventDefault(); 
+                    pos1 = pos3 - e.clientX; 
+                    pos2 = pos4 - e.clientY; 
+                    pos3 = e.clientX; 
+                    pos4 = e.clientY; 
+                    element.style.top = (element.offsetTop - pos2) + "px"; 
+                    element.style.left = (element.offsetLeft - pos1) + "px"; 
+                }
                 function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
             }
 
@@ -451,7 +465,7 @@
                 if (i < text.length) {
                     terminal.innerHTML = terminal.innerHTML.replace('<span class="cursor"></span>', '') + (text.charAt(i) === '\n' ? '<br>' : text.charAt(i));
                     terminal.innerHTML += '<span class="cursor"></span>';
-                    setTimeout(() => typeWriter(text, i + 1), 20);
+                    typewriterTimeout = setTimeout(() => typeWriter(text, i + 1), 20);
                 } else {
                     terminal.querySelector('.cursor').style.animation = 'blink 1s step-end infinite';
                 }
